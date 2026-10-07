@@ -1,0 +1,1336 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Zunivo</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=Unbounded:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b0c0e; --card:#15171b; --card2:#1d2026; --line:#262a31;
+  --text:#f2f3f5; --hint:#8b919c; --lime:#c8ff3d; --lime-ink:#0b0c0e;
+  --bad:#ff5a5f; --radius:18px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+html,body{margin:0;background:var(--bg);color:var(--text);
+  font:16px/1.4 "Golos Text",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
+body{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+body.nonav{padding-bottom:calc(20px + env(safe-area-inset-bottom,0px))}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,textarea:focus-visible,input:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+.disp{font-family:"Unbounded","Golos Text",system-ui,sans-serif;letter-spacing:-.01em}
+
+/* top bar */
+.top{display:flex;align-items:center;gap:10px;padding:14px 16px 8px}
+.logo{font-family:"Unbounded",system-ui,sans-serif;font-weight:700;font-size:22px;letter-spacing:-.03em;flex:1}
+.logo i{font-style:normal;color:var(--lime)}
+.bal{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:7px 8px 7px 14px;font-weight:600}
+.bal .plus{width:26px;height:26px;border-radius:50%;background:var(--lime);color:var(--lime-ink);display:grid;place-items:center;font-weight:700}
+.gem{color:var(--lime)}
+.back{border:0;background:var(--card);width:40px;height:40px;border-radius:12px;display:grid;place-items:center;flex:none}
+.vtitle{font-family:"Unbounded",system-ui,sans-serif;font-weight:700;font-size:18px;flex:1}
+
+.view{padding:4px 16px 16px}
+.view[hidden]{display:none}
+
+/* home */
+.hero{position:relative;overflow:hidden;border-radius:24px;padding:22px 20px;background:
+  radial-gradient(120% 90% at 100% 0%, rgba(200,255,61,.28), transparent 60%),
+  linear-gradient(160deg,#1a1d22,#121417);border:1px solid var(--line);margin-top:6px}
+.hero small{color:var(--lime);font-weight:600;font-size:13px;text-transform:uppercase;letter-spacing:.08em}
+.hero h1{font-family:"Unbounded",system-ui,sans-serif;font-size:26px;line-height:1.1;margin:8px 0 6px;letter-spacing:-.02em}
+.hero p{color:#c3c7ce;margin:0 0 16px;font-size:15px;max-width:30ch}
+.btn{border:0;border-radius:14px;padding:14px 18px;font-weight:700;background:var(--lime);color:var(--lime-ink);width:100%;font-size:16px}
+.btn:disabled{opacity:.45}
+.btn.ghost{background:var(--card2);color:var(--text)}
+.hero .btn{width:auto;padding:12px 18px}
+.sec{margin:22px 2px 10px;font-weight:600;color:var(--hint);font-size:13px;text-transform:uppercase;letter-spacing:.08em}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tile{border:1px solid var(--line);background:var(--card);border-radius:var(--radius);padding:16px 14px;text-align:left;display:flex;flex-direction:column;gap:6px;min-height:132px}
+.tile svg{width:28px;height:28px;color:var(--lime)}
+.tile b{font-size:16px;margin-top:auto}
+.tile.wide{grid-column:1/-1;min-height:104px}
+.trends{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px}
+.trends::-webkit-scrollbar{display:none}
+.trend{flex:none;width:132px;min-height:150px;border:1px solid var(--line);border-radius:18px;padding:12px;text-align:left;display:flex;flex-direction:column;gap:6px;background:linear-gradient(160deg,#1c2027,#131519)}
+.trend .e{font-size:30px}
+.trend b{font-size:14px;line-height:1.2}
+.trend span{font-size:12px;color:var(--hint);margin-top:auto}
+.daily{display:flex;align-items:center;gap:12px;width:100%;margin-top:12px;border:1px dashed var(--lime);background:rgba(200,255,61,.06);border-radius:16px;padding:12px 14px;text-align:left}
+.daily .e{font-size:26px}
+.daily .t{font-weight:600}
+.daily .s{font-size:13px;color:var(--hint)}
+.daily[disabled]{border-style:solid;border-color:var(--line);background:var(--card);opacity:.8}
+.enh{border:1px solid var(--line);background:var(--card);color:var(--lime);border-radius:10px;padding:7px 11px;font-size:13px;font-weight:600;margin-top:8px}
+.card2{border:1px solid var(--line);background:var(--card);border-radius:20px;padding:16px;margin-bottom:12px}
+.card2 h3{margin:0 0 6px;font-size:17px}
+.card2 p{margin:0 0 12px;color:var(--hint);font-size:14px}
+.kv{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0 12px}
+.kv div{background:var(--card2);border-radius:12px;padding:10px;text-align:center}
+.kv b{display:block;font-size:18px}
+.kv span{font-size:11px;color:var(--hint)}
+.reflink{display:flex;gap:8px}
+.reflink input{flex:1;min-width:0;font:inherit;font-size:14px;color:var(--text);background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.reflink .btn{flex:none}
+.row2{display:flex;gap:8px;margin-top:8px}
+.row2 .btn{padding:12px;font-size:15px}
+.tbl{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+.tbl th,.tbl td{padding:7px 4px;border-bottom:1px solid var(--line);text-align:right}
+.tbl th:first-child,.tbl td:first-child{text-align:left}
+.tbl th{color:var(--hint);font-weight:500}
+.tblwrap{overflow-x:auto}
+.linkbtn{border:0;background:none;color:var(--lime);font-weight:600;padding:8px 2px;margin-top:6px}
+.result video{display:block;width:100%;background:#000}
+.tile span{color:var(--hint);font-size:13px}
+
+/* forms */
+.label{font-size:13px;color:var(--hint);margin:16px 2px 8px}
+.chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.pick{width:100%;display:flex;align-items:center;gap:12px;text-align:left;border:1px solid var(--line);background:var(--card);border-radius:16px;padding:12px 14px}
+.pick .pv{font-size:12px;color:var(--hint)}
+.pick .pn{font-weight:600}
+.pick .pc{margin-left:auto;color:var(--lime);font-weight:600;white-space:nowrap}
+.pick .pa{color:var(--hint);font-size:18px}
+.sheet{position:fixed;inset:0;z-index:30;background:rgba(0,0,0,.6);display:flex;align-items:flex-end}
+.sheet-card{background:var(--bg);width:100%;max-height:88vh;border-radius:22px 22px 0 0;border-top:1px solid var(--line);display:flex;flex-direction:column;padding-bottom:env(safe-area-inset-bottom,0px)}
+.sheet-top{display:flex;gap:8px;padding:14px 14px 8px}
+.sheet-top input{flex:1;border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:12px;padding:11px 13px;font:inherit}
+.sheet-top button{border:0;background:var(--card);border-radius:12px;width:44px;font-size:20px}
+.sheet-list{overflow-y:auto;padding:0 14px 16px}
+.sheet-g{font-size:12px;color:var(--hint);text-transform:uppercase;letter-spacing:.08em;margin:14px 2px 6px;font-weight:600}
+.sheet-row{width:100%;display:block;border:1px solid var(--line);background:var(--card);padding:12px 14px;border-radius:14px;text-align:left;font-size:15px;margin-bottom:8px}
+.sheet-row .h{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.sheet-row .n{font-weight:600}
+.sheet-row .d{color:var(--hint);font-size:13px;margin-top:3px}
+.sheet-row .tags{display:flex;gap:6px;margin-top:6px}
+.tag{font-size:11px;border-radius:6px;padding:2px 7px;background:var(--card2);color:var(--hint)}
+.tag.hot{background:rgba(200,255,61,.15);color:var(--lime)}
+.setrow{display:flex;justify-content:space-between;align-items:center;border:1px solid var(--line);background:var(--card);border-radius:14px;padding:12px 14px;margin-top:10px}
+.setrow b{color:var(--lime);font-variant-numeric:tabular-nums}
+.durbox{border:1px solid var(--line);background:var(--card);border-radius:14px;padding:12px 14px;margin-top:10px}
+.durbox .top{display:flex;justify-content:space-between}
+.durbox input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:36px;margin-top:6px;background:transparent;touch-action:none}
+.durbox input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:6px;background:linear-gradient(var(--lime),var(--lime)) 0/var(--fill,0%) 100% no-repeat,var(--card2)}
+.durbox input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;border-radius:50%;background:#fff;margin-top:-11px;box-shadow:0 1px 4px rgba(0,0,0,.4)}
+.durbox input[type=range]::-moz-range-track{height:6px;border-radius:6px;background:var(--card2)}
+.durbox input[type=range]::-moz-range-progress{height:6px;border-radius:6px;background:var(--lime)}
+.durbox input[type=range]::-moz-range-thumb{width:28px;height:28px;border-radius:50%;background:#fff;border:0}
+.durbox .chips{margin-top:10px}
+.durbox .fixed{font-size:13px;color:var(--hint);margin-top:4px}
+.switch{position:relative;width:50px;height:30px;flex:none}
+.switch input{opacity:0;width:0;height:0}
+.switch span{position:absolute;inset:0;background:var(--card2);border-radius:999px;transition:.2s}
+.switch span:before{content:"";position:absolute;width:24px;height:24px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}
+.switch input:checked+span{background:var(--lime)}
+.switch input:checked+span:before{transform:translateX(20px);background:var(--lime-ink)}
+.switch input:focus-visible+span{outline:2px solid var(--lime);outline-offset:2px}
+.sheet-row[aria-selected="true"]{background:rgba(200,255,61,.1);outline:1px solid var(--lime)}
+.sheet-row .c{margin-left:auto;color:var(--lime);white-space:nowrap;font-variant-numeric:tabular-nums;font-size:14px}
+.sheet-row .b{font-size:11px;color:var(--lime);border:1px solid var(--lime);border-radius:6px;padding:1px 5px}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line);background:var(--card);border-radius:12px;padding:9px 12px;font-size:14px;white-space:nowrap}
+.chip small{color:var(--hint);margin-left:4px}
+.chip[aria-pressed="true"]{border-color:var(--lime);background:rgba(200,255,61,.1)}
+.chip[aria-pressed="true"] small{color:var(--lime)}
+textarea{width:100%;min-height:120px;resize:vertical;border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:var(--radius);padding:14px;font:inherit}
+textarea::placeholder{color:#5f6570}
+.counter{font-size:12px;color:var(--hint);text-align:right;margin-top:6px}
+.go{margin-top:14px}
+.upload{border:1.5px dashed var(--line);background:var(--card);border-radius:var(--radius);padding:18px;text-align:center;color:var(--hint);display:block;width:100%}
+.upload img{max-width:100%;max-height:260px;border-radius:12px;display:block;margin:0 auto}
+.thumbs{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.thumb{position:relative;width:72px;height:72px;border-radius:12px;overflow:hidden;border:1px solid var(--line)}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb b{position:absolute;left:3px;bottom:3px;font-size:9px;background:rgba(0,0,0,.65);color:#fff;border-radius:6px;padding:1px 5px}
+.thumb button{position:absolute;right:2px;top:2px;width:22px;height:22px;border:0;border-radius:50%;background:rgba(0,0,0,.65);color:#fff;font-size:14px;line-height:1}
+.addthumb{width:72px;height:72px;border:1.5px dashed var(--line);border-radius:12px;background:var(--card);color:var(--hint);font-size:26px}
+.rgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:6px}
+.rgrid img{width:100%;border-radius:10px;display:block}
+.trend.img{background-size:cover;background-position:center;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.8)}
+.trend.img span{color:#eee}
+.gal{flex:none;width:132px;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:var(--card);text-align:left;padding:0}
+.gal img,.gal video{width:100%;height:150px;object-fit:cover;display:block;background:#000}
+.gal div{font-size:12px;color:var(--hint);padding:8px 10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.pub{position:absolute;top:6px;right:6px;width:32px;height:32px;border-radius:50%;border:0;background:rgba(0,0,0,.6);color:#fff;font-size:16px}
+.hcard{position:relative}
+
+/* result */
+.result{margin-top:16px;border:1px solid var(--line);background:var(--card);border-radius:var(--radius);overflow:hidden}
+.result img{display:block;width:100%}
+.result audio{width:100%;display:block;padding:12px}
+.result .bar{display:flex;gap:8px;padding:10px}
+.result .bar .btn{padding:11px;font-size:15px}
+.result .note{font-size:12px;color:var(--hint);padding:0 12px 12px}
+.loading{aspect-ratio:1;display:grid;place-items:center;text-align:center;color:var(--hint);
+  background:linear-gradient(110deg,var(--card) 30%,#20242a 50%,var(--card) 70%);background-size:300% 100%;animation:sh 1.6s linear infinite}
+.loading.short{aspect-ratio:auto;padding:32px 12px}
+@keyframes sh{to{background-position:-150% 0}}
+@media (prefers-reduced-motion:reduce){.loading{animation:none}}
+
+/* chat */
+.msgs{display:flex;flex-direction:column;gap:10px;padding-bottom:90px}
+.msg{max-width:86%;padding:10px 13px;border-radius:16px;white-space:pre-wrap;overflow-wrap:anywhere;font-size:15px}
+.msg.u{align-self:flex-end;background:var(--lime);color:var(--lime-ink);border-bottom-right-radius:6px}
+.msg.a{align-self:flex-start;background:var(--card);border:1px solid var(--line);border-bottom-left-radius:6px}
+.msg.typing{color:var(--hint)}
+.chatbar{position:fixed;left:0;right:0;bottom:0;display:flex;gap:8px;padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));background:rgba(11,12,14,.92);backdrop-filter:blur(10px);border-top:1px solid var(--line)}
+.chatbar textarea{min-height:44px;max-height:120px;padding:11px 13px;border-radius:14px;resize:none}
+.send{flex:none;width:46px;border:0;border-radius:14px;background:var(--lime);color:var(--lime-ink);display:grid;place-items:center}
+.empty{color:var(--hint);text-align:center;padding:30px 10px}
+
+/* history */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.hcard{border:1px solid var(--line);background:var(--card);border-radius:14px;overflow:hidden;text-align:left;padding:0}
+.hcard img{width:100%;aspect-ratio:1;object-fit:cover;display:block;background:var(--card2)}
+.hcard .aud{aspect-ratio:1;display:grid;place-items:center;background:var(--card2);color:var(--lime)}
+.hcard div.t{padding:8px 10px;font-size:12px;color:var(--hint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* packs */
+.pack{border:1px solid var(--line);background:var(--card);border-radius:22px;padding:18px;margin-bottom:12px}
+.pack.pop{border-color:var(--lime)}
+.pack .row{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.pack h3{font-family:"Unbounded",system-ui,sans-serif;margin:0;font-size:18px}
+.pack .tag{font-size:12px;color:var(--lime);font-weight:600}
+.pack .cr{font-size:28px;font-weight:700;margin:10px 0 2px}
+.pack ul{margin:6px 0 14px;padding-left:18px;color:var(--hint);font-size:14px}
+.uid{color:var(--hint);font-size:13px;text-align:center;margin-top:8px}
+.seg{display:flex;gap:4px;background:var(--card);border:1px solid var(--line);padding:4px;border-radius:14px;margin:4px 0 14px}
+.seg button{flex:1;border:0;background:none;color:var(--hint);font:inherit;font-weight:600;font-size:14px;padding:10px 6px;border-radius:10px}
+.seg button[aria-selected="true"]{background:var(--lime);color:var(--lime-ink)}
+.paynote{color:var(--hint);font-size:13px;margin:0 4px 12px;line-height:1.45}
+.wait{border:1px dashed var(--lime);border-radius:16px;padding:14px;margin-bottom:12px;color:#e9ffc0;font-size:14px}
+.wait .btn{margin-top:10px;padding:11px}
+
+/* nav */
+.nav{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:space-around;padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));background:rgba(11,12,14,.94);backdrop-filter:blur(10px);border-top:1px solid var(--line)}
+.nav button{border:0;background:none;color:var(--hint);display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;padding:4px 14px;border-radius:12px}
+.nav button svg{width:24px;height:24px}
+.nav button[aria-current="page"]{color:var(--lime)}
+.nav[hidden]{display:none}
+
+.toast{position:fixed;left:16px;right:16px;top:calc(12px + env(safe-area-inset-top,0px));background:#2a1517;border:1px solid var(--bad);color:#ffd6d7;padding:12px 14px;border-radius:14px;z-index:20;font-size:14px}
+.toast.ok{background:#1b2410;border-color:var(--lime);color:#e9ffc0}
+.blocked{padding:40px 24px;text-align:center;color:var(--hint)}
+</style>
+</head>
+<body>
+
+<div class="top" id="topHome">
+  <div class="logo">zuni<i>vo</i></div>
+  <button class="bal" id="balBtn" aria-label="Баланс и пакеты"><span class="gem">◆</span><span id="bal">…</span><span class="plus">+</span></button>
+</div>
+<div class="top" id="topSub" hidden>
+  <button class="back" id="backBtn" aria-label="Назад"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+  <div class="vtitle" id="vtitle"></div>
+  <button class="bal" id="balBtn2" aria-label="Баланс"><span class="gem">◆</span><span id="bal2">…</span></button>
+</div>
+
+<!-- ГЛАВНАЯ -->
+<section class="view" id="v-home">
+  <div class="hero">
+    <small>Nano Banana 2</small>
+    <h1>Создай картинку по тексту</h1>
+    <p>Опиши, что хочешь увидеть, и нейросеть нарисует за секунды.</p>
+    <button class="btn" data-go="image">Попробовать</button>
+  </div>
+  <button class="daily" id="dailyBtn" type="button"><span class="e">🎁</span><span><span class="t" id="dailyT">Ежедневный бонус</span><br><span class="s" id="dailyS">Заходи каждый день — бонус растёт</span></span></button>
+  <button class="daily" id="homeBtn" type="button" hidden><span class="e">📲</span><span><span class="t">Добавь Zunivo на главный экран</span><br><span class="s">Открывай нейросети одним касанием, как обычное приложение</span></span></button>
+  <div class="sec">🔥 Тренды</div>
+  <div class="trends" id="trends"></div>
+  <div id="galBox" hidden><div class="sec">🌍 Что создают другие</div><div class="trends" id="gallery"></div></div>
+  <div class="sec" id="secCount">Нейросети</div>
+  <div class="tiles">
+    <button class="tile" data-go="image">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>
+      <b>Картинки</b><span id="tImg">Nano Banana, GPT Image…</span></button>
+    <button class="tile" data-go="video">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="5" width="14" height="14" rx="3"/><path d="M16 10l6-3v10l-6-3z"/></svg>
+      <b>Видео</b><span id="tVid">Veo, Kling, Seedance…</span></button>
+    <button class="tile" data-go="edit">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>
+      <b>Фото-редактор</b><span id="tEdit">Измени своё фото</span></button>
+    <button class="tile" data-go="audio">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 10v4M8 6v12M12 3v18M16 7v10M20 10v4"/></svg>
+      <b>Озвучка</b><span id="tTts">Текст в голос</span></button>
+    <button class="tile" data-go="music">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+      <b>Музыка</b><span id="tMus">Песни и звуки</span></button>
+    <button class="tile" data-go="motion">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="4.5" r="2"/><path d="M12 7v6l-3 7M12 13l3 7M7 10l5-2 5 2"/></svg>
+      <b>Перенос движения</b><span>Фото танцует как на видео</span></button>
+    <button class="tile" data-go="avatar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="10" cy="8" r="4"/><path d="M3 21a7 7 0 0114 0M18 7c1 1 1 3 0 4M20.5 5c2 2.5 2 5.5 0 8"/></svg>
+      <b>Говорящее фото</b><span>Фото говорит текстом или голосом</span></button>
+    <button class="tile" data-go="vedit">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="5" width="14" height="14" rx="2"/><path d="M17 10l4-2v8l-4-2M7 9l2 2 4-4"/></svg>
+      <b>Изменить видео</b><span>Стиль, погода, объекты по тексту</span></button>
+    <button class="tile" data-go="chat">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12a8 8 0 01-11.6 7.1L4 20l1-4.6A8 8 0 1121 12z"/></svg>
+      <b>AI Чат</b><span id="tChat">GPT, Claude, Gemini, Grok, DeepSeek…</span></button>
+  </div>
+</section>
+
+<!-- КАРТИНКА -->
+<section class="view" id="v-image" hidden>
+  <div class="label">Модель</div>
+  <button class="pick" id="imgModels" type="button"></button>
+  <div class="label">Формат</div>
+  <div class="chips" id="aspects"></div>
+  <div id="varBox"><div class="label">Сколько вариантов</div><div class="chips" id="variants"></div></div>
+  <div class="label">Что нарисовать?</div>
+  <textarea id="imgPrompt" maxlength="2000" placeholder="Например: уютная кофейня в дождливом Бишкеке, вечер, тёплый свет, фото"></textarea>
+  <button class="enh" type="button" data-enh="imgPrompt" data-type="image">✨ Улучшить запрос</button>
+  <button class="btn go" id="imgGo">Создать</button>
+  <div id="imgResult"></div>
+</section>
+
+<!-- РЕДАКТОР -->
+<section class="view" id="v-edit" hidden>
+  <div class="label">Модель</div>
+  <button class="pick" id="editModels" type="button"></button>
+  <div class="label">Ваше фото</div>
+  <label class="upload" id="upLabel"><input type="file" accept="image/*" id="upInput" hidden><span id="upText">Нажмите, чтобы выбрать фото</span></label>
+  <div class="label">Что изменить?</div>
+  <textarea id="editPrompt" maxlength="2000" placeholder="Например: сделай фон как в горах Иссык-Куля, добавь солнечный свет"></textarea>
+  <button class="enh" type="button" data-enh="editPrompt" data-type="edit">✨ Улучшить запрос</button>
+  <button class="btn go" id="editGo">Изменить фото</button>
+  <div id="editResult"></div>
+</section>
+
+<!-- ВИДЕО -->
+<section class="view" id="v-video" hidden>
+  <div class="label">Модель</div>
+  <button class="pick" id="vidModels" type="button"></button>
+  <div class="label">Фото (необязательно) — чтобы оживить его</div>
+  <label class="upload" id="vidUpLabel"><input type="file" accept="image/*" id="vidUpInput" multiple hidden><span>Нажмите, чтобы добавить фото (до 5)</span></label>
+  <div class="thumbs" id="vidThumbs"></div>
+  <div class="counter" id="vidImgHint" hidden>1-е фото — начальный кадр, остальные — референсы персонажей (@Image1, @Image2…). Несколько фото понимают Seedance (до 5) и Veo 3.1 Lite/Fast (до 3, реальные лица можно). Остальные модели берут только 1-е фото.</div>
+  <button class="linkbtn" id="vidClear" hidden>Убрать все фото</button>
+  <div class="label">Формат</div>
+  <div class="chips" id="vidAspects"></div>
+  <div id="vidResBox"><div class="label">Качество</div><div class="chips" id="vidRes"></div></div>
+  <div class="durbox"><div class="top"><span>Длительность</span><b id="vidDurLbl">5 сек</b></div><div class="chips" id="vidDurChips"></div><input type="range" id="vidDur" min="0" max="0" step="1" value="0" aria-label="Длительность"><div class="fixed" id="vidDurFixed" hidden>У этой модели длительность фиксированная</div></div>
+  <label class="setrow" id="vidAudioRow"><span>Звук</span><span class="switch"><input type="checkbox" id="vidAudio" checked><span></span></span></label>
+  <div class="label">Что должно происходить в видео?</div>
+  <textarea id="vidPrompt" maxlength="2000" placeholder="Например: дрон медленно пролетает над горами Ала-Арчи на рассвете, туман в долине, кинематографично"></textarea>
+  <button class="enh" type="button" data-enh="vidPrompt" data-type="video">✨ Улучшить запрос</button>
+  <button class="btn go" id="vidGo">Создать видео</button>
+  <div class="counter">Видео создаётся обычно 2–10 минут. Можно закрыть приложение — результат придёт в чат с ботом.</div>
+  <div id="vidResult"></div>
+</section>
+
+<!-- ПЕРЕНОС ДВИЖЕНИЯ -->
+<section class="view" id="v-motion" hidden>
+  <div class="label">Модель</div>
+  <button class="pick" id="motModels" type="button"></button>
+  <div class="label">1. Фото персонажа (кто будет двигаться)</div>
+  <label class="upload" id="motImgLabel"><input type="file" accept="image/*" id="motImgInput" hidden><span>Нажмите, чтобы выбрать фото</span></label>
+  <div class="label">2. Видео с движением (3–30 сек): танец, жесты, походка</div>
+  <label class="upload" id="motVidLabel"><input type="file" accept="video/*" id="motVidInput" hidden><span id="motVidText">Нажмите, чтобы выбрать видео</span></label>
+  <div class="label">Ориентация персонажа</div>
+  <div class="chips" id="motOrient"></div>
+  <div class="label">Качество</div>
+  <div class="chips" id="motRes"></div>
+  <div class="label">Подсказка (необязательно)</div>
+  <textarea id="motPrompt" maxlength="1000" placeholder="Например: девушка танцует в лёгком платье на фоне заката"></textarea>
+  <button class="btn go" id="motGo">Создать видео</button>
+  <div class="counter">Длина результата = длина вашего видео. Готовое видео придёт и в чат с ботом.</div>
+  <div id="motResult"></div>
+</section>
+
+<!-- ГОВОРЯЩЕЕ ФОТО -->
+<section class="view" id="v-avatar" hidden>
+  <div class="label">Модель</div>
+  <button class="pick" id="avaModels" type="button"></button>
+  <div class="label">1. Фото (лицо крупно, смотрит в камеру)</div>
+  <label class="upload" id="avaImgLabel"><input type="file" accept="image/*" id="avaImgInput" hidden><span>Нажмите, чтобы выбрать фото</span></label>
+  <div class="label">2. Что будет говорить</div>
+  <div class="chips" id="avaMode"></div>
+  <div id="avaTextBox">
+    <textarea id="avaText" maxlength="2500" placeholder="Например: Привет! Это Zunivo — 100+ нейросетей прямо в Telegram."></textarea>
+    <div class="label">Голос</div>
+    <div class="chips" id="avaVoices"></div>
+  </div>
+  <div id="avaAudBox" hidden>
+    <label class="upload" id="avaAudLabel"><input type="file" accept="audio/*" id="avaAudInput" hidden><span id="avaAudText">Нажмите, чтобы выбрать аудио (до 30 сек)</span></label>
+  </div>
+  <button class="btn go" id="avaGo">Создать видео</button>
+  <div class="counter">Видео создаётся 1–5 минут и придёт в чат с ботом.</div>
+  <div id="avaResult"></div>
+</section>
+
+<!-- РЕДАКТИРОВАНИЕ ВИДЕО -->
+<section class="view" id="v-vedit" hidden>
+  <div class="label">Модель</div>
+  <button class="pick" id="vedModels" type="button"></button>
+  <div class="label">1. Ваше видео (2–30 сек)</div>
+  <label class="upload" id="vedVidLabel"><input type="file" accept="video/*" id="vedVidInput" hidden><span id="vedVidText">Нажмите, чтобы выбрать видео</span></label>
+  <div class="label">2. Что изменить?</div>
+  <textarea id="vedPrompt" maxlength="1000" placeholder="Например: сделай зиму со снегом, сохрани людей и движения"></textarea>
+  <button class="enh" type="button" data-enh="vedPrompt" data-type="video">✨ Улучшить запрос</button>
+  <button class="btn go" id="vedGo">Изменить видео</button>
+  <div class="counter">Цена зависит от длины видео. Результат придёт и в чат с ботом.</div>
+  <div id="vedResult"></div>
+</section>
+
+<!-- МУЗЫКА -->
+<section class="view" id="v-music" hidden>
+  <div class="label">Модель</div>
+  <button class="pick" id="musModels" type="button"></button>
+  <div class="label" id="musLabel">Опишите музыку: жанр, настроение, инструменты</div>
+  <textarea id="musPrompt" maxlength="2000" placeholder="Например: тёплый лоу-фай для учёбы, мягкое пианино, дождь за окном"></textarea>
+  <button class="enh" type="button" data-enh="musPrompt" data-type="music">✨ Улучшить запрос</button>
+  <div id="lyrBox" hidden>
+    <div class="label">Слова песни (необязательно — напишем сами)</div>
+    <textarea id="musLyrics" maxlength="3000" placeholder="[verse]&#10;Твои слова…&#10;[chorus]&#10;Припев…"></textarea>
+  </div>
+  <button class="btn go" id="musGo">Создать</button>
+  <div id="musResult"></div>
+</section>
+
+<!-- ОЗВУЧКА -->
+<section class="view" id="v-audio" hidden>
+  <div class="label">Модель</div>
+  <div class="chips" id="ttsModels"></div>
+  <div class="label">Голос</div>
+  <div class="chips" id="voices"></div>
+  <div class="label">Текст для озвучки</div>
+  <textarea id="ttsText" maxlength="3000" placeholder="Вставьте текст, который нужно озвучить"></textarea>
+  <div class="counter" id="ttsCount">0 символов</div>
+  <button class="btn go" id="ttsGo">Озвучить</button>
+  <div id="ttsResult"></div>
+</section>
+
+<!-- ЧАТ -->
+<section class="view" id="v-chat" hidden>
+  <button class="pick" id="chatModels" type="button" style="margin-bottom:12px"></button>
+  <div class="msgs" id="msgs"><div class="empty" id="chatEmpty">Спросите что угодно: идеи, тексты, переводы, советы.</div></div>
+  <div class="chatbar" id="chatbar" hidden>
+    <textarea id="chatInput" rows="1" placeholder="Сообщение…" aria-label="Сообщение"></textarea>
+    <button class="send" id="chatSend" aria-label="Отправить"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+  </div>
+</section>
+
+<!-- ИСТОРИЯ -->
+<section class="view" id="v-history" hidden>
+  <div id="histBody"></div>
+</section>
+
+<!-- ПАКЕТЫ -->
+<section class="view" id="v-profile" hidden>
+  <div class="card2">
+    <h3>👥 Партнёрская программа</h3>
+    <p id="refInfo">Приглашайте друзей и получайте 10% от всех их покупок — с выводом в USDT.</p>
+    <div class="kv"><div><b id="refCount">0</b><span>приглашено</span></div><div><b id="refEarned">$0</b><span>заработано</span></div><div><b id="refBal">$0</b><span>доступно</span></div></div>
+    <div class="reflink"><input id="refLink" readonly aria-label="Ваша ссылка"><button class="btn" id="refCopy" style="width:auto;padding:10px 14px">Копировать</button></div>
+    <div class="row2"><button class="btn ghost" id="refShare">Поделиться</button><button class="btn" id="refWithdraw">Вывести</button></div>
+    <button class="linkbtn" id="refConvert">Обменять баланс на кредиты ◆</button>
+  </div>
+  <div class="card2">
+    <h3>🌐 Язык / Language</h3>
+    <select id="langSel" aria-label="Язык" data-notr="1" style="width:100%;font:inherit;color:var(--text);background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:11px 12px"></select>
+  </div>
+  <div class="card2">
+    <h3>🎟 Промокод</h3>
+    <div class="reflink"><input id="promoIn" placeholder="Введите промокод" aria-label="Промокод" autocapitalize="characters"><button class="btn" id="promoGo" style="width:auto;padding:10px 14px">Активировать</button></div>
+  </div>
+  <div class="card2" id="adminCard" hidden>
+    <h3>📊 Админ-панель</h3>
+    <p id="adminSum">Загрузка…</p>
+    <div class="tblwrap"><table class="tbl" id="adminTbl"></table></div>
+    <p id="adminPromos" style="margin-top:10px"></p>
+    <p style="font-size:12px">Расходы на нейросети смотрите в fal.ai и kie.ai. Команды в боте: /broadcast, /promo, /stats.</p>
+  </div>
+  <div class="uid" id="uid2"></div>
+</section>
+
+<section class="view" id="v-buy" hidden>
+  <div class="tabs seg" id="payTabs" role="tablist" aria-label="Способ оплаты" hidden>
+    <button role="tab" data-pay="stars" aria-selected="true">⭐ Stars</button>
+    <button role="tab" data-pay="crypto" aria-selected="false">💎 Крипта · бонус</button>
+    <button role="tab" data-pay="qr" aria-selected="false" id="qrTab" hidden>🇰🇬 QR</button>
+  </div>
+  <div id="packs"></div>
+  <div class="uid" id="uid"></div>
+</section>
+
+<div class="blocked" id="blocked" hidden>Откройте Zunivo через бота в Telegram.</div>
+
+<div class="sheet" id="sheet" hidden>
+  <div class="sheet-card" role="dialog" aria-label="Выбор модели">
+    <div class="sheet-top"><input id="sheetSearch" placeholder="Поиск: GPT, Claude, Kling…" aria-label="Поиск модели"><button id="sheetClose" aria-label="Закрыть">×</button></div>
+    <div class="sheet-list" id="sheetList"></div>
+  </div>
+</div>
+
+<nav class="nav" id="nav">
+  <button data-tab="home" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z"/></svg>Главная</button>
+  <button data-tab="history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>История</button>
+  <button data-tab="buy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3h12l3 6-9 12L3 9z"/><path d="M3 9h18"/></svg>Пакеты</button>
+  <button data-tab="profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></svg>Профиль</button>
+</nav>
+
+<script>
+const API = "https://ai-bot.alimovabdulaziz90.workers.dev";
+const tg = window.Telegram && window.Telegram.WebApp;
+if (tg) { tg.ready(); tg.expand(); try { tg.disableVerticalSwipes && tg.disableVerticalSwipes(); } catch(e){} try { tg.setHeaderColor('#0b0c0e'); tg.setBackgroundColor('#0b0c0e'); } catch(e){} }
+const $ = id => document.getElementById(id);
+const el = (t, c, txt) => { const e = document.createElement(t); if (c) e.className = c; if (txt != null) e.textContent = txt; return e; };
+
+let ME = null;
+const state = { imgModel: 'nb2', aspect: '1:1', voice: null, chatModel: 'gpt', chat: [], editImage: null, editModel: 'nb2edit', vidModel: 'kling25', vidAspect: 'auto', vidImage: null, musModel: 'lyria3pro', ttsModel: 'tts' };
+
+/* ---------- API ---------- */
+async function api(path, body){
+  const r = await fetch(API + path, {
+    method: body ? 'POST' : 'GET',
+    headers: { 'Content-Type': 'application/json', 'X-Init-Data': tg ? tg.initData : '' },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  const data = await r.json().catch(() => ({ error: 'Нет связи с сервером' }));
+  if (!r.ok || data.error) throw new Error(data.error || 'Ошибка');
+  return data;
+}
+let toastT;
+function toast(msg, ok){
+  document.querySelectorAll('.toast').forEach(t => t.remove());
+  const t = el('div', 'toast' + (ok ? ' ok' : ''), msg); t.setAttribute('role','status'); document.body.appendChild(t);
+  clearTimeout(toastT); toastT = setTimeout(() => t.remove(), 4000);
+  try { tg && tg.HapticFeedback.notificationOccurred(ok ? 'success' : 'error'); } catch(e){}
+}
+function setBal(n){ $('bal').textContent = ME && ME.admin ? '∞' : n; $('bal2').textContent = ME && ME.admin ? '∞' : n; if (ME) ME.credits = n; }
+
+/* ---------- Навигация ---------- */
+const TITLES = { image: 'Картинки', video: 'Видео', edit: 'Фото-редактор', audio: 'Озвучка', music: 'Музыка', motion: 'Перенос движения', avatar: 'Говорящее фото', vedit: 'Изменить видео', chat: 'AI Чат', history: 'История', buy: 'Пакеты', profile: 'Профиль' };
+const SUB = ['image','video','edit','audio','music','chat','motion','avatar','vedit'];
+let current = 'home';
+function go(v){
+  current = v;
+  document.querySelectorAll('.view').forEach(s => s.hidden = s.id !== 'v-' + v);
+  const sub = SUB.includes(v);
+  $('topHome').hidden = v !== 'home';
+  $('topSub').hidden = v === 'home';
+  $('vtitle').textContent = TITLES[v] || '';
+  $('backBtn').hidden = !sub;
+  $('nav').hidden = sub;
+  document.body.classList.toggle('nonav', sub);
+  $('chatbar').hidden = v !== 'chat';
+  document.querySelectorAll('.nav button').forEach(b => { if (b.dataset.tab === v) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current'); });
+  if (tg && tg.BackButton) { sub ? tg.BackButton.show() : tg.BackButton.hide(); }
+  if (v === 'history') loadHistory();
+  if (v === 'buy') renderPacks();
+  if (v === 'profile') renderProfile();
+  window.scrollTo(0, 0);
+}
+document.querySelectorAll('[data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
+document.querySelectorAll('.nav button').forEach(b => b.onclick = () => go(b.dataset.tab));
+$('backBtn').onclick = () => go('home');
+$('balBtn').onclick = $('balBtn2').onclick = () => go('buy');
+if (tg && tg.BackButton) tg.BackButton.onClick(() => go('home'));
+
+/* ---------- Чипсы ---------- */
+function chips(container, items, selected, onPick){
+  const box = $(container); box.innerHTML = '';
+  items.forEach(it => {
+    const b = el('button', 'chip'); b.type = 'button';
+    b.append(it.label); if (it.small) b.append(el('small', null, it.small));
+    b.setAttribute('aria-pressed', it.value === selected);
+    b.onclick = () => { box.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', 'false')); b.setAttribute('aria-pressed', 'true'); onPick(it.value); };
+    box.appendChild(b);
+  });
+}
+const costLabel = n => `${n} ◆`;
+
+const byType = t => Object.keys(ME.models).filter(k => ME.models[k].type === t);
+
+/* ---------- Окно выбора модели ---------- */
+const POPULAR = { image: ['nb2','nbpro','gptimg2','grokimg2','sd5pro','flux'], edit: ['nb2edit','nbproedit','gptedit'],
+  video: ['kling25','veolite','grokvid','seedance'], chat: ['gpt','claude','gemini','grok','deepseek','gptsol'], music: ['lyria3pro','mmusic26'] };
+let sheetCb = null;
+function renderPick(btnId, key){
+  const m = ME.models[key], b = $(btnId); b.innerHTML = '';
+  const t = el('div'); t.append(el('div','pv', m.v || ''), el('div','pn', m.name));
+  b.append(t, el('span','pc', (m.vid || m.rates || m.rate ? 'от ' : '') + costLabel(m.cost)), el('span','pa','›'));
+}
+function bindPick(btnId, type, stateKey, after){
+  renderPick(btnId, state[stateKey]);
+  $(btnId).onclick = () => openSheet(type, state[stateKey], k => { state[stateKey] = k; renderPick(btnId, k); after && after(); });
+}
+function openSheet(type, selected, cb){
+  sheetCb = cb; $('sheetSearch').value = ''; $('sheet').hidden = false; drawSheet(type, selected, '');
+  $('sheetSearch').oninput = e => drawSheet(type, selected, e.target.value);
+}
+function drawSheet(type, selected, q){
+  const list = $('sheetList'); list.innerHTML = '';
+  q = q.trim().toLowerCase();
+  const keys = byType(type).filter(k => !q || (ME.models[k].name + ' ' + (ME.models[k].v || '')).toLowerCase().includes(q));
+  const groups = [];
+  if (!q) { const pop = (POPULAR[type] || []).filter(k => ME.models[k]); if (pop.length) groups.push(['Популярные', pop]); }
+  const byV = {};
+  keys.forEach(k => { const v = ME.models[k].v || 'Другие'; (byV[v] = byV[v] || []).push(k); });
+  Object.keys(byV).forEach(v => groups.push([v, byV[v]]));
+  if (!groups.length) list.appendChild(el('div','empty','Ничего не найдено'));
+  groups.forEach(([g, ks]) => {
+    list.appendChild(el('div','sheet-g', `${g} · ${ks.length}`));
+    ks.forEach(k => {
+      const m = ME.models[k], r = el('button','sheet-row'); r.type = 'button';
+      r.setAttribute('aria-selected', k === selected);
+      const h = el('div','h'); h.append(el('span','n', m.name), el('span','c', (m.vid || m.rates || m.rate ? 'от ' : '') + costLabel(m.cost))); r.append(h);
+      if (m.d) r.append(el('div','d', m.d));
+      const tags = el('div','tags');
+      if (m.tag) tags.append(el('span','tag hot', m.tag));
+      if (m.i2v) tags.append(el('span','tag','+ фото'));
+      if (m.vid && m.vid.audio !== 'none') tags.append(el('span','tag','звук'));
+      if (tags.children.length) r.append(tags);
+      r.onclick = () => { closeSheet(); sheetCb && sheetCb(k); };
+      list.appendChild(r);
+    });
+  });
+}
+function closeSheet(){ $('sheet').hidden = true; }
+$('sheetClose').onclick = closeSheet;
+$('sheet').onclick = e => { if (e.target.id === 'sheet') closeSheet(); };
+
+function setupForms(){
+  const m = ME.models;
+  for (const [k, t] of [['imgModel','image'],['editModel','edit'],['vidModel','video'],['chatModel','chat'],['musModel','music'],['ttsModel','audio']])
+    if (!m[state[k]]) state[k] = byType(t)[0];
+  bindPick('imgModels', 'image', 'imgModel', updImgBtn);
+  bindPick('editModels', 'edit', 'editModel', updEditBtn);
+  bindPick('vidModels', 'video', 'vidModel', setupVidOpts);
+  bindPick('chatModels', 'chat', 'chatModel');
+  bindPick('musModels', 'music', 'musModel', updMusic);
+  chips('ttsModels', byType('audio').map(k => ({ value: k, label: m[k].name, small: costLabel(m[k].cost) })), state.ttsModel, v => { state.ttsModel = v; updTts(); });
+  chips('aspects', [['1:1','Квадрат'],['9:16','Сторис'],['16:9','Широкий'],['3:4','Портрет'],['4:3','Альбом']].map(([v,l]) => ({ value: v, label: l, small: v })), state.aspect, v => state.aspect = v);
+  chips('vidAspects', [['auto','Авто','из промпта или фото'],['9:16','Вертикальное','9:16'],['16:9','Горизонтальное','16:9'],['1:1','Квадрат','1:1']].map(([v,l,sm]) => ({ value: v, label: l, small: sm })), state.vidAspect, v => state.vidAspect = v);
+  state.voice = ME.voices[0];
+  chips('voices', ME.voices.map(v => ({ value: v, label: v })), state.voice, v => state.voice = v);
+  updImgBtn(); updTts(); updEditBtn(); setupVidOpts(); updMusic();
+  const n = t => byType(t).length;
+  $('secCount').textContent = `Нейросети · ${Object.keys(m).length} моделей`;
+  $('tImg').textContent = `${n('image')} моделей: Nano Banana, GPT Image, Grok`;
+  $('tVid').textContent = `${n('video')} моделей: Veo 3.1, Kling, Seedance`;
+  $('tEdit').textContent = `${n('edit')} моделей: измени своё фото`;
+  $('tMus').textContent = `${n('music')} модели: песни, музыка, звуки`;
+  $('tTts').textContent = `${n('audio')} модели: текст в голос`;
+  renderTrends(); renderDaily(); setupSpecial(); setupHomeScreen(); loadGallery();
+  $('tChat').textContent = `${n('chat')} моделей: GPT, Claude, Gemini, Grok, DeepSeek…`;
+}
+function updMusic(){
+  const m = ME.models[state.musModel];
+  $('lyrBox').hidden = m.name.indexOf('словами') < 0;
+  $('musLabel').textContent = state.musModel === 'sfx' ? 'Опишите звук: например «гром и дождь за окном»' : 'Опишите музыку: жанр, настроение, инструменты';
+  $('musGo').textContent = `Создать · ${costLabel(m.cost)}`;
+}
+$('musGo').onclick = () => {
+  const prompt = $('musPrompt').value.trim(); if (!prompt) return toast('Опишите, что создать');
+  runJob($('musGo'), $('musResult'), { model: state.musModel, prompt, lyrics: $('musLyrics').value.trim() || undefined }, true);
+};
+function updEditBtn(){
+  const m = ME.models[state.editModel];
+  const np = !!m.noPrompt;
+  $('editPrompt').hidden = np; document.querySelector('[data-enh="editPrompt"]').hidden = np;
+  const lbl = $('editPrompt').previousElementSibling; if (lbl && lbl.classList.contains('label')) lbl.hidden = np;
+  $('editGo').textContent = `${np ? m.name.replace(/^\S+\s/, '') : 'Изменить фото'} · ${costLabel(m.cost)}`;
+}
+function vidOpts(){
+  const m = ME.models[state.vidModel], v = m.vid;
+  const dur = v.dur.includes(state.vidDur) ? state.vidDur : v.dur[0];
+  const resKeys = Object.keys(v.res); const res = resKeys.includes(state.vidRes) ? state.vidRes : resKeys[0];
+  const audio = v.audio === 'always' ? true : v.audio === 'none' ? false : $('vidAudio').checked;
+  const table = state.vidImage && v.imgRes && v.imgRes[res] ? v.imgRes : v.res;
+  return { dur, res, audio, cost: Math.max(1, Math.ceil(table[res][audio ? 1 : 0] * dur / 0.009)) };
+}
+function setupVidOpts(){
+  const v = ME.models[state.vidModel].vid, resKeys = Object.keys(v.res);
+  if (!resKeys.includes(state.vidRes) || state._vidModelPrev !== state.vidModel) state.vidRes = resKeys[0];
+  $('vidResBox').hidden = resKeys.length < 2;
+  chips('vidRes', resKeys.map(r => ({ value: r, label: r })), state.vidRes, r => { state.vidRes = r; updVidBtn(); });
+  if (!v.dur.includes(state.vidDur) || state._vidModelPrev !== state.vidModel) state.vidDur = v.dur.includes(5) ? 5 : v.dur[0];
+  state._vidModelPrev = state.vidModel;
+  // 1 вариант — фиксированная; до 6 вариантов — кнопки; больше — ползунок
+  const d = $('vidDur'), few = v.dur.length <= 6;
+  $('vidDurFixed').hidden = v.dur.length !== 1;
+  $('vidDurChips').hidden = !(few && v.dur.length > 1);
+  d.hidden = few;
+  if (few && v.dur.length > 1) chips('vidDurChips', v.dur.map(x => ({ value: x, label: `${x} сек` })), state.vidDur, x => { state.vidDur = x; updVidBtn(); });
+  if (!few) { d.max = v.dur.length - 1; d.value = v.dur.indexOf(state.vidDur); }
+  $('vidAudioRow').hidden = v.audio !== 'toggle';
+  updVidBtn();
+}
+function updVidBtn(){
+  const o = vidOpts();
+  $('vidDurLbl').textContent = `${o.dur} сек`;
+  const d = $('vidDur'); d.style.setProperty('--fill', (d.max > 0 ? (d.value / d.max) * 100 : 0) + '%');
+  $('vidGo').textContent = `${state.vidImage ? 'Оживить фото' : 'Создать видео'} · ${costLabel(o.cost)}`;
+}
+$('vidDur').addEventListener('input', e => { const v = ME.models[state.vidModel].vid; state.vidDur = v.dur[Number(e.target.value)]; updVidBtn(); });
+$('vidAudio').addEventListener('change', updVidBtn);
+function canVariants(){ return ['nb2','nbpro','nb1','gptimg2','gptimg15','gptmini','flux'].includes(state.imgModel); }
+function updImgBtn(){
+  const n = canVariants() ? (state.nVar || 1) : 1;
+  $('varBox').hidden = !canVariants();
+  chips('variants', [1,2,4].map(v => ({ value: v, label: v === 1 ? '1 картинка' : v + ' варианта', small: costLabel(ME.models[state.imgModel].cost * v) })), n, v => { state.nVar = v; updImgBtn(); });
+  $('imgGo').textContent = `Создать${n > 1 ? ' ' + n + ' варианта' : ''} · ${costLabel(ME.models[state.imgModel].cost * n)}`;
+}
+function ttsCost(){ const t = ME.models[state.ttsModel], n = $('ttsText').value.length; return t.cost * Math.max(1, Math.ceil(n / t.perChars)); }
+function updTts(){ const n = $('ttsText').value.length; $('ttsCount').textContent = `${n} символов`; $('ttsGo').textContent = `Озвучить · ${costLabel(ttsCost())}`; }
+$('ttsText').addEventListener('input', updTts);
+
+/* ---------- Генерация с очередью ---------- */
+function showLoading(box, short){
+  box.innerHTML = ''; const r = el('div','result'); const l = el('div','loading' + (short === true ? ' short' : ''));
+  l.append(el('div', null, short === 'video' ? 'Создаём видео… обычно 1–3 минуты' : 'Генерируем… обычно 10–30 секунд')); r.appendChild(l); box.appendChild(r); return l;
+}
+function showResult(box, url, type, urls){
+  box.innerHTML = ''; const r = el('div','result');
+  if (urls && urls.length > 1) {
+    const g = el('div','rgrid');
+    urls.forEach(u => { const i = el('img'); i.src = u; i.alt = 'Вариант'; i.onclick = () => download(u, type); g.appendChild(i); });
+    r.appendChild(g); r.appendChild(el('div','note','Нажмите на вариант, чтобы скачать. Все варианты также отправлены в чат с ботом.'));
+    box.appendChild(r); return;
+  }
+  if (type === 'audio') { const a = el('audio'); a.controls = true; a.src = url; r.appendChild(a); }
+  else if (type === 'video') { const v = el('video'); v.controls = true; v.playsInline = true; v.setAttribute('playsinline',''); v.src = url; r.appendChild(v); }
+  else { const i = el('img'); i.src = url; i.alt = 'Результат генерации'; r.appendChild(i); }
+  const bar = el('div','bar');
+  const dl = el('button','btn','Скачать'); dl.onclick = () => download(url, type);
+  bar.appendChild(dl); r.appendChild(bar);
+  r.appendChild(el('div','note','Результат также отправлен вам в чат с ботом.'));
+  box.appendChild(r);
+}
+function download(url, type){
+  const name = 'zunivo-' + Date.now() + (type === 'audio' ? '.mp3' : type === 'video' ? '.mp4' : '.png');
+  try { if (tg && tg.downloadFile && tg.isVersionAtLeast('8.0')) { tg.downloadFile({ url, file_name: name }); return; } } catch(e){}
+  if (tg && tg.openLink) tg.openLink(url); else window.open(url, '_blank');
+}
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+async function runJob(btn, box, payload, short){
+  btn.disabled = true; const loader = showLoading(box, short);
+  try {
+    const { job, credits } = await api('/api/generate', payload); setBal(credits);
+    const t0 = Date.now();
+    while (Date.now() - t0 < (short === 'video' ? 45 : 20) * 60 * 1000) {
+      await sleep(2500);
+      const r = await api('/api/job?id=' + encodeURIComponent(job));
+      if (r.status === 'pending') {
+        const sec = Math.floor((Date.now() - t0) / 1000), mm = Math.floor(sec / 60), ss = String(sec % 60).padStart(2, '0');
+        loader.firstChild.textContent = (r.queue ? `В очереди: ${r.queue} · ` : '') + (short === 'video'
+          ? `Создаём видео… ${mm}:${ss}${sec > 60 ? ' · обычно 2–10 мин. Можно закрыть приложение — пришлём в чат' : ''}`
+          : `Генерируем… ${mm}:${ss}`);
+        continue;
+      }
+      if (r.status === 'done') { showResult(box, r.url, r.type, r.urls); try { tg.HapticFeedback.notificationOccurred('success'); } catch(e){} return; }
+      if (r.status === 'failed') { box.innerHTML = ''; if (r.credits != null) setBal(r.credits); toast(r.error); return; }
+    }
+    box.innerHTML = ''; toast('Слишком долго. Результат придёт в чат с ботом, если получится.');
+  } catch(e) {
+    box.innerHTML = ''; toast(e.message);
+    if (/Недостаточно/.test(e.message)) setTimeout(() => go('buy'), 900);
+  } finally { btn.disabled = false; }
+}
+$('imgGo').onclick = () => {
+  const prompt = $('imgPrompt').value.trim(); if (!prompt) return toast('Напишите, что нарисовать');
+  runJob($('imgGo'), $('imgResult'), { model: state.imgModel, prompt, aspect: state.aspect, n: canVariants() ? (state.nVar || 1) : 1 });
+};
+$('ttsGo').onclick = () => {
+  const prompt = $('ttsText').value.trim(); if (!prompt) return toast('Вставьте текст');
+  runJob($('ttsGo'), $('ttsResult'), { model: state.ttsModel, prompt, voice: state.voice }, true);
+};
+
+/* фото: уменьшаем перед отправкой */
+async function readPhoto(file){
+  const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = URL.createObjectURL(file); });
+  const max = 1536, k = Math.min(1, max / Math.max(img.width, img.height));
+  const c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+  c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+  return c.toDataURL('image/jpeg', 0.88);
+}
+function bindUpload(inputId, labelId, onSet){
+  $(inputId).addEventListener('change', async e => {
+    const f = e.target.files && e.target.files[0]; if (!f) return;
+    try {
+      const data = await readPhoto(f); onSet(data);
+      const lab = $(labelId); lab.querySelector('span').hidden = true; lab.querySelectorAll('img').forEach(x => x.remove());
+      const p = el('img'); p.src = data; p.alt = 'Выбранное фото'; lab.appendChild(p);
+    } catch(err) { toast('Не удалось открыть фото'); }
+  });
+}
+bindUpload('upInput', 'upLabel', d => state.editImage = d);
+state.vidImages = [];
+function renderVidThumbs(){
+  const box = $('vidThumbs'); box.innerHTML = '';
+  state.vidImages.forEach((d, i) => {
+    const t = el('div','thumb'); const im = el('img'); im.src = d; im.alt = 'Фото ' + (i + 1);
+    const del = el('button', null, '×'); del.type = 'button'; del.setAttribute('aria-label','Убрать фото');
+    del.onclick = (e) => { e.preventDefault(); state.vidImages.splice(i, 1); renderVidThumbs(); };
+    t.append(im, el('b', null, i === 0 ? 'кадр' : '@Image' + (i + 1)), del); box.appendChild(t);
+  });
+  if (state.vidImages.length && state.vidImages.length < 5) {
+    const add = el('button','addthumb','+'); add.type = 'button'; add.setAttribute('aria-label','Добавить фото');
+    add.onclick = () => $('vidUpInput').click(); box.appendChild(add);
+  }
+  state.vidImage = state.vidImages[0] || null;
+  $('vidUpLabel').hidden = state.vidImages.length > 0;
+  $('vidImgHint').hidden = state.vidImages.length < 2;
+  $('vidClear').hidden = !state.vidImages.length;
+  updVidBtn();
+}
+$('vidUpInput').addEventListener('change', async e => {
+  const files = [...(e.target.files || [])].slice(0, 5 - state.vidImages.length);
+  for (const f of files) { try { state.vidImages.push(await readPhoto(f)); } catch(err) { toast('Не удалось открыть фото'); } }
+  e.target.value = ''; renderVidThumbs();
+});
+$('vidClear').onclick = () => {
+  state.vidImages = []; renderVidThumbs();
+};
+$('vidGo').onclick = async () => {
+  const prompt = $('vidPrompt').value.trim(); if (!prompt) return toast('Опишите, что должно происходить в видео');
+  runJob($('vidGo'), $('vidResult'), { model: state.vidModel, prompt, aspect: await resolveVidAspect(prompt), image: state.vidImage || undefined, images: state.vidImages.length > 1 ? state.vidImages : undefined, duration: vidOpts().dur, res: vidOpts().res, audio: vidOpts().audio }, 'video');
+};
+$('editGo').onclick = () => {
+  if (!state.editImage) return toast('Сначала выберите фото');
+  const prompt = $('editPrompt').value.trim(); if (!prompt && !ME.models[state.editModel].noPrompt) return toast('Напишите, что изменить');
+  runJob($('editGo'), $('editResult'), { model: state.editModel, prompt, image: state.editImage });
+};
+
+/* ---------- Чат ---------- */
+function addMsg(role, text, cls){ $('chatEmpty') && $('chatEmpty').remove(); const m = el('div', 'msg ' + (role === 'user' ? 'u' : 'a') + (cls ? ' ' + cls : ''), text); if (!cls) m.dataset.notr = '1'; $('msgs').appendChild(m); m.scrollIntoView({ block: 'end', behavior: 'smooth' }); return m; }
+async function sendChat(){
+  const inp = $('chatInput'), text = inp.value.trim(); if (!text) return;
+  inp.value = ''; inp.style.height = '';
+  state.chat.push({ role: 'user', text }); addMsg('user', text);
+  const t = addMsg('assistant', 'Печатает…', 'typing'); $('chatSend').disabled = true;
+  try {
+    const r = await api('/api/generate', { model: state.chatModel, messages: state.chat });
+    t.classList.remove('typing'); t.textContent = r.text; state.chat.push({ role: 'assistant', text: r.text }); setBal(r.credits);
+  } catch(e) { t.remove(); state.chat.pop(); toast(e.message); inp.value = text; }
+  finally { $('chatSend').disabled = false; }
+}
+$('chatSend').onclick = sendChat;
+$('chatInput').addEventListener('input', e => { e.target.style.height = 'auto'; e.target.style.height = Math.min(120, e.target.scrollHeight) + 'px'; });
+
+/* ---------- История ---------- */
+async function loadHistory(){
+  const body = $('histBody'); body.innerHTML = ''; body.appendChild(el('div','empty','Загрузка…'));
+  try {
+    const { items } = await api('/api/history');
+    body.innerHTML = '';
+    if (!items.length) { body.appendChild(el('div','empty','Здесь появятся ваши генерации.')); return; }
+    const g = el('div','grid');
+    items.forEach(it => {
+      const c = el('button','hcard'); c.type = 'button';
+      if (it.t === 'video') { const v = el('video'); v.src = it.u; v.muted = true; v.playsInline = true; v.setAttribute('playsinline',''); v.preload = 'metadata'; v.style.cssText = 'width:100%;aspect-ratio:1;object-fit:cover;display:block;background:#000'; c.appendChild(v); }
+      else if (it.t === 'audio') { const a = el('div','aud'); a.innerHTML = '<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 10v4M8 6v12M12 3v18M16 7v10M20 10v4"/></svg>'; c.appendChild(a); }
+      else { const i = el('img'); i.loading = 'lazy'; i.src = it.u; i.alt = it.p || 'Генерация'; c.appendChild(i); }
+      const tt = el('div','t', it.p || it.m); tt.dataset.notr = '1'; c.appendChild(tt);
+      c.onclick = () => download(it.u, it.t);
+      if (it.t === 'image' || it.t === 'video' || it.t === 'edit') {
+        const pb = el('button','pub','🌍'); pb.type = 'button'; pb.setAttribute('aria-label','Опубликовать в галерее');
+        pb.onclick = async (e) => {
+          e.stopPropagation();
+          const ok = await new Promise(res => tg && tg.showConfirm ? tg.showConfirm('Отправить работу в общую галерею Zunivo? После проверки её увидят другие пользователи, а вы получите +5 ◆. Не публикуйте фото людей без их согласия.', res) : res(confirm('Опубликовать?')));
+          if (!ok) return;
+          try { await api('/api/publish', { u: it.u }); toast('Отправлено на проверку 👍', true); } catch(err) { toast(err.message); }
+        };
+        c.appendChild(pb);
+      }
+      g.appendChild(c);
+    });
+    body.appendChild(g);
+  } catch(e) { body.innerHTML = ''; toast(e.message); }
+}
+
+/* ---------- Пакеты ---------- */
+let payMethod = 'stars', cryptoWait = null;
+document.querySelectorAll('[data-pay]').forEach(b => b.onclick = () => { payMethod = b.dataset.pay; renderPacks(); });
+function renderPacks(){
+  $('payTabs').hidden = !ME.cryptoEnabled && !ME.qr;
+  $('qrTab').hidden = !ME.qr;
+  document.querySelector('[data-pay="crypto"]').hidden = !ME.cryptoEnabled;
+  if (payMethod === 'qr' && ME.qr) { document.querySelectorAll('[data-pay]').forEach(b => b.setAttribute('aria-selected', b.dataset.pay === payMethod)); return renderQrPacks(); }
+  document.querySelectorAll('[data-pay]').forEach(b => b.setAttribute('aria-selected', b.dataset.pay === payMethod));
+  if (payMethod === 'crypto' && ME.cryptoEnabled) return renderCryptoPacks();
+  const box = $('packs'); box.innerHTML = '';
+  const nb = ME.models.nb2.cost, fl = ME.models.flux.cost;
+  Object.entries(ME.packs).forEach(([id, p]) => {
+    const c = el('div', 'pack' + (id === 'middle' ? ' pop' : ''));
+    const row = el('div','row'); row.append(el('h3', null, p.title)); if (id === 'middle') row.append(el('span','tag','Популярный'));
+    c.append(row);
+    c.append(el('div','cr', `${p.credits} ◆`));
+    c.append(packList(p));
+    const b = el('button','btn', `Купить за ⭐ ${p.stars}`); b.onclick = () => buy(id, b); c.append(b);
+    box.appendChild(c);
+  });
+  renderSubs(box);
+  $('uid').textContent = `Ваш Telegram ID: ${ME.id}`;
+}
+function packList(p){
+  const nb = ME.models.nb2.cost, fl = ME.models.flux.cost;
+  const ul = el('ul'); ul.append(
+    el('li', null, `до ${Math.floor(p.credits / fl)} картинок Flux`),
+    el('li', null, `или ${Math.floor(p.credits / nb)} картинок Nano Banana 2`),
+    ...(ME.models.seedmini ? [el('li', null, `или ${Math.floor(p.credits / ME.models.seedmini.cost)} видео Seedance Mini`)] : []),
+    el('li', null, `или ${Math.floor(p.credits / Math.min(...byType('chat').map(k => ME.models[k].cost)))} сообщений в AI чате`));
+  return ul;
+}
+/* ---------- Оплата по QR (Кыргызстан) ---------- */
+function renderQrPacks(){
+  const box = $('packs'); box.innerHTML = '';
+  box.appendChild(el('p','paynote','Оплата переводом по QR из любого банка Кыргызстана (MBank, Optima, Элкарт и др.). После перевода пришлите скриншот чека боту — кредиты начислим после проверки, обычно до 30 минут.'));
+  Object.entries(ME.qr).forEach(([id, p]) => {
+    const c = el('div', 'pack' + (id === 'middle' ? ' pop' : ''));
+    const row = el('div','row'); row.append(el('h3', null, p.title)); if (id === 'middle') row.append(el('span','tag','Популярный'));
+    c.append(row, el('div','cr', `${p.credits} ◆`), packList(p));
+    const b = el('button','btn', `Оплатить ${p.som} сом по QR`);
+    b.onclick = async () => {
+      b.disabled = true;
+      try {
+        const o = await api('/api/qrorder', { pack: id });
+        box.innerHTML = '';
+        const card = el('div','pack pop');
+        card.append(el('h3', null, `Оплата ${o.som} сом`));
+        const im = el('img'); im.src = o.img; im.alt = 'QR-код для оплаты'; im.style.cssText = 'width:100%;max-width:280px;display:block;margin:12px auto;border-radius:14px;background:#fff';
+        card.append(im);
+        const ol = el('ol'); ol.style.cssText = 'margin:0 0 12px;padding-left:20px;line-height:1.6';
+        [`Отсканируйте QR в приложении банка`, `Переведите ровно ${o.som} сом`, `В комментарии укажите код: ${o.id}`, `Пришлите скриншот чека в чат с ботом`].forEach(t => ol.appendChild(el('li', null, t)));
+        card.append(ol);
+        if (o.note) card.append(el('p','paynote', o.note));
+        card.append(el('p','paynote', `После проверки начислим ${o.credits} ◆. QR и инструкция также отправлены вам в чат.`));
+        const go = el('button','btn','Перейти в чат и отправить чек'); go.onclick = () => tg && tg.close ? tg.close() : null;
+        card.append(go); box.appendChild(card);
+      } catch(e) { toast(e.message); b.disabled = false; }
+    };
+    c.append(b); box.appendChild(c);
+  });
+  $('uid').textContent = `Ваш Telegram ID: ${ME.id}`;
+}
+
+/* ---------- Подписка ---------- */
+function renderSubs(box){
+  if (!ME.subs) return;
+  const head = el('div','sec','🔁 Подписка — выгоднее пакетов'); head.style.marginTop = '20px'; box.appendChild(head);
+  if (ME.sub) {
+    const c = el('div','pack pop');
+    c.append(el('h3', null, `Подписка ${ME.subs[ME.sub.plan] ? ME.subs[ME.sub.plan].title : ''} активна ✓`));
+    c.append(el('p','paynote', ME.sub.canceled ? `Отменена. Кредиты начисляются до ${new Date(ME.sub.until).toLocaleDateString('ru-RU')}.` : `Следующее продление: ${new Date(ME.sub.until).toLocaleDateString('ru-RU')}. Кредиты начисляются каждый месяц автоматически.`));
+    if (!ME.sub.canceled) {
+      const b = el('button','btn ghost','Отменить подписку');
+      b.onclick = async () => {
+        const ok = await new Promise(res => tg && tg.showConfirm ? tg.showConfirm('Отменить подписку? Кредиты уже начисленные останутся у вас.', res) : res(confirm('Отменить?')));
+        if (!ok) return;
+        try { const r = await api('/api/unsubscribe', {}); ME.sub = r.sub; renderPacks(); toast('Подписка отменена', true); } catch(e) { toast(e.message); }
+      };
+      c.append(b);
+    }
+    box.appendChild(c); return;
+  }
+  Object.entries(ME.subs).forEach(([id, sp]) => {
+    const pk = ME.packs.middle || Object.values(ME.packs)[0];
+    const better = Math.round((sp.credits / sp.stars) / (pk.credits / pk.stars) * 100 - 100);
+    const c = el('div','pack' + (id === 'plus' ? ' pop' : ''));
+    const row = el('div','row'); row.append(el('h3', null, sp.title)); row.append(el('span','tag', better > 0 ? `+${better}% выгоднее` : 'каждый месяц'));
+    c.append(row, el('div','cr', `${sp.credits} ◆ / мес`), packList(sp), el('p','paynote','Продлевается автоматически, отменить можно в любой момент.'));
+    const b = el('button','btn', `Оформить за ⭐ ${sp.stars}/мес`);
+    b.onclick = async () => {
+      b.disabled = true;
+      try {
+        const { link } = await api('/api/subscribe', { plan: id });
+        tg.openInvoice(link, async st => { if (st === 'paid') { toast('Подписка оформлена! 🎉', true); await sleep(1500); await refresh(); renderPacks(); } });
+      } catch(e) { toast(e.message); } finally { b.disabled = false; }
+    };
+    c.append(b); box.appendChild(c);
+  });
+}
+function renderCryptoPacks(){
+  const box = $('packs'); box.innerHTML = '';
+  if (cryptoWait) {
+    const w = el('div','wait', 'Ждём оплату в @CryptoBot… Как только платёж пройдёт, кредиты начислятся сами и бот пришлёт сообщение.');
+    const again = el('button','btn ghost','Открыть счёт ещё раз'); again.onclick = () => openLink(cryptoWait.url);
+    w.appendChild(again); box.appendChild(w);
+  }
+  box.appendChild(el('p','paynote','Оплата в USDT, TON и других монетах через @CryptoBot. Кредитов больше, чем за Stars, потому что комиссия меньше.'));
+  Object.entries(ME.cryptoPacks).forEach(([id, p]) => {
+    const c = el('div', 'pack' + (id === 'middle' ? ' pop' : ''));
+    const row = el('div','row'); row.append(el('h3', null, p.title));
+    const star = ME.packs[id];
+    if (star) row.append(el('span','tag', `+${Math.round((p.credits / star.credits - 1) * 100)}% к Stars`));
+    c.append(row, el('div','cr', `${p.credits} ◆`), packList(p));
+    const b = el('button','btn', `Оплатить $${p.usd} криптой`); b.onclick = () => buyCrypto(id, b);
+    c.append(b); box.appendChild(c);
+  });
+  $('uid').textContent = `Ваш Telegram ID: ${ME.id}`;
+}
+function openLink(url){
+  if (tg && /^https:\/\/t\.me\//.test(url) && tg.openTelegramLink) tg.openTelegramLink(url);
+  else if (tg && tg.openLink) tg.openLink(url); else window.open(url, '_blank');
+}
+async function buyCrypto(id, btn){
+  btn.disabled = true;
+  try {
+    const r = await api('/api/cryptobuy', { pack: id });
+    cryptoWait = { id: r.id, url: r.url, t0: Date.now() };
+    renderCryptoPacks(); openLink(r.url); pollCrypto();
+  } catch(e) { toast(e.message); }
+  finally { btn.disabled = false; }
+}
+let cryptoPolling = false;
+async function pollCrypto(){
+  if (cryptoPolling) return; cryptoPolling = true;
+  try {
+    while (cryptoWait && Date.now() - cryptoWait.t0 < 60 * 60 * 1000) {
+      await sleep(4000);
+      if (document.hidden) continue;
+      try {
+        const r = await api('/api/cryptocheck?id=' + encodeURIComponent(cryptoWait.id));
+        if (r.status === 'paid') { cryptoWait = null; setBal(r.credits); toast('Оплата прошла! Кредиты начислены 🎉', true); if (current === 'buy') renderPacks(); break; }
+        if (r.status === 'expired') { cryptoWait = null; toast('Счёт истёк, создайте новый'); if (current === 'buy') renderPacks(); break; }
+      } catch(e) {}
+    }
+  } finally { cryptoPolling = false; }
+}
+async function buy(id, btn){
+  btn.disabled = true;
+  try {
+    const { link } = await api('/api/buy', { pack: id });
+    tg.openInvoice(link, async status => {
+      if (status === 'paid') { toast('Оплата прошла! Кредиты зачисляются…', true); await sleep(1500); refresh(); }
+      else if (status === 'failed') toast('Оплата не прошла');
+    });
+  } catch(e) { toast(e.message); }
+  finally { btn.disabled = false; }
+}
+
+/* ---------- Формат «Авто» ---------- */
+function aspectFromPrompt(t){
+  t = (t || '').toLowerCase();
+  const m = t.match(/\b(21:9|16:9|9:16|4:3|3:4|1:1)\b/); if (m) return m[1];
+  if (/вертикал|vertical|portrait|сторис|stories|reels|tiktok|тикток/.test(t)) return '9:16';
+  if (/горизонтал|horizontal|landscape|широкоформат|widescreen/.test(t)) return '16:9';
+  if (/квадрат|square/.test(t)) return '1:1';
+  return null;
+}
+function imageAspect(dataUri){
+  return new Promise(res => { const i = new Image(); i.onload = () => {
+    const r = i.width / i.height;
+    res(r > 1.2 ? '16:9' : r < 0.83 ? '9:16' : '1:1'); }; i.onerror = () => res(null); i.src = dataUri; });
+}
+async function resolveVidAspect(prompt){
+  if (state.vidAspect !== 'auto') return state.vidAspect;
+  return aspectFromPrompt(prompt) || (state.vidImage ? await imageAspect(state.vidImage) : null) || '16:9';
+}
+
+/* ---------- Загрузка видео/аудио ---------- */
+function mediaDuration(file, kind){
+  return new Promise(res => { const m = document.createElement(kind); m.preload = 'metadata';
+    m.onloadedmetadata = () => { res(m.duration || 0); URL.revokeObjectURL(m.src); }; m.onerror = () => res(0); m.src = URL.createObjectURL(file); });
+}
+async function uploadFile(file){
+  const fd = new FormData(); fd.append('file', file, file.name || 'file');
+  const r = await fetch(API + '/api/upload', { method: 'POST', headers: { 'X-Init-Data': tg ? tg.initData : '' }, body: fd });
+  const d = await r.json().catch(() => ({ error: 'Нет связи с сервером' }));
+  if (!r.ok || d.error) throw new Error(d.error || 'Не удалось загрузить');
+  return d.url;
+}
+
+/* ---------- Перенос движения ---------- */
+Object.assign(state, { motModel: 'motion26', motOrient: 'video', motRes: '720p', motImage: null, motVideoUrl: null, motDur: 0,
+  avaModel: 'avatar', avaMode: 'text', avaImage: null, avaAudioUrl: null, avaDur: 0, avaVoice: null });
+function motCost(){
+  const m = ME.models[state.motModel]; if (!m || !m.rates) return 0;
+  const max = state.motOrient === 'image' ? 10 : 30;
+  const sec = Math.min(max, Math.max(3, Math.ceil(state.motDur || 5)));
+  return Math.max(1, Math.ceil((m.rates[state.motRes] || m.rates['720p']) * sec * 1.1 / 0.009));
+}
+function updMot(){
+  $('motGo').textContent = `Создать видео · ${costLabel(motCost())}`;
+}
+bindUpload('motImgInput', 'motImgLabel', d => { state.motImage = d; });
+$('motVidInput').addEventListener('change', async e => {
+  const f = e.target.files && e.target.files[0]; if (!f) return;
+  const dur = await mediaDuration(f, 'video');
+  if (dur && (dur < 3 || dur > 30)) { toast('Нужно видео от 3 до 30 секунд'); e.target.value = ''; return; }
+  $('motVidText').textContent = 'Загружаю видео…'; $('motGo').disabled = true;
+  try { state.motVideoUrl = await uploadFile(f); state.motDur = dur || 5; $('motVidText').textContent = `✅ Видео загружено · ${Math.round(state.motDur)} сек (нажмите, чтобы заменить)`; }
+  catch(err) { state.motVideoUrl = null; $('motVidText').textContent = 'Нажмите, чтобы выбрать видео'; toast(err.message); }
+  finally { $('motGo').disabled = false; e.target.value = ''; updMot(); }
+});
+$('motGo').onclick = () => {
+  if (!state.motImage) return toast('Добавьте фото персонажа');
+  if (!state.motVideoUrl) return toast('Добавьте видео с движением');
+  if (state.motOrient === 'image' && state.motDur > 10) return toast('В режиме «как на фото» видео до 10 секунд. Выберите «как на видео».');
+  runJob($('motGo'), $('motResult'), { model: state.motModel, image: state.motImage, video_url: state.motVideoUrl, duration: state.motDur,
+    orientation: state.motOrient, res: state.motRes, prompt: $('motPrompt').value.trim() }, 'video');
+};
+
+/* ---------- Говорящее фото ---------- */
+function avaCost(){
+  const m = ME.models[state.avaModel]; if (!m || !m.rate) return 0;
+  if (state.avaMode === 'audio') return Math.max(1, Math.ceil(m.rate * Math.max(3, Math.ceil(state.avaDur || 5)) * 1.15 / 0.009));
+  const len = $('avaText').value.length;
+  return Math.max(1, Math.ceil(m.rate * Math.max(3, Math.ceil(len / 13)) * 1.15 / 0.009)) + Math.ceil(len / 500) * 4;
+}
+function updAva(){
+  $('avaTextBox').hidden = state.avaMode !== 'text'; $('avaAudBox').hidden = state.avaMode !== 'audio';
+  $('avaGo').textContent = `Создать видео · ${costLabel(avaCost())}`;
+}
+$('avaText').addEventListener('input', updAva);
+bindUpload('avaImgInput', 'avaImgLabel', d => { state.avaImage = d; });
+$('avaAudInput').addEventListener('change', async e => {
+  const f = e.target.files && e.target.files[0]; if (!f) return;
+  const dur = await mediaDuration(f, 'audio');
+  if (dur && dur > 60) { toast('Аудио до 60 секунд'); e.target.value = ''; return; }
+  $('avaAudText').textContent = 'Загружаю аудио…'; $('avaGo').disabled = true;
+  try { state.avaAudioUrl = await uploadFile(f); state.avaDur = dur || 10; $('avaAudText').textContent = `✅ Аудио загружено · ${Math.round(state.avaDur)} сек (нажмите, чтобы заменить)`; }
+  catch(err) { state.avaAudioUrl = null; $('avaAudText').textContent = 'Нажмите, чтобы выбрать аудио'; toast(err.message); }
+  finally { $('avaGo').disabled = false; e.target.value = ''; updAva(); }
+});
+$('avaGo').onclick = () => {
+  if (!state.avaImage) return toast('Добавьте фото');
+  if (state.avaMode === 'text') {
+    const text = $('avaText').value.trim(); if (!text) return toast('Напишите, что должно сказать фото');
+    runJob($('avaGo'), $('avaResult'), { model: state.avaModel, image: state.avaImage, text, voice: state.avaVoice }, 'video');
+  } else {
+    if (!state.avaAudioUrl) return toast('Загрузите аудио');
+    runJob($('avaGo'), $('avaResult'), { model: state.avaModel, image: state.avaImage, audio_url: state.avaAudioUrl, duration: state.avaDur }, 'video');
+  }
+};
+/* ---------- Редактирование видео ---------- */
+Object.assign(state, { vedModel: 'vedit', vedUrl: null, vedDur: 0 });
+function vedCost(){ const m = ME.models[state.vedModel]; if (!m || !m.rate) return 0; return Math.max(1, Math.ceil(m.rate * Math.min(30, Math.max(2, Math.ceil(state.vedDur || 5))) * 1.1 / 0.009)); }
+function updVed(){ $('vedGo').textContent = `Изменить видео · ${state.vedDur ? '' : 'от '}${costLabel(vedCost())}`; }
+$('vedVidInput').addEventListener('change', async e => {
+  const f = e.target.files && e.target.files[0]; if (!f) return;
+  const dur = await mediaDuration(f, 'video');
+  if (dur && (dur < 2 || dur > 30)) { toast('Нужно видео от 2 до 30 секунд'); e.target.value = ''; return; }
+  $('vedVidText').textContent = 'Загружаю видео…'; $('vedGo').disabled = true;
+  try { state.vedUrl = await uploadFile(f); state.vedDur = dur || 5; $('vedVidText').textContent = `✅ Видео загружено · ${Math.round(state.vedDur)} сек (нажмите, чтобы заменить)`; }
+  catch(err) { state.vedUrl = null; $('vedVidText').textContent = 'Нажмите, чтобы выбрать видео'; toast(err.message); }
+  finally { $('vedGo').disabled = false; e.target.value = ''; updVed(); }
+});
+$('vedGo').onclick = () => {
+  if (!state.vedUrl) return toast('Загрузите видео');
+  const prompt = $('vedPrompt').value.trim(); if (!prompt) return toast('Напишите, что изменить');
+  runJob($('vedGo'), $('vedResult'), { model: state.vedModel, video_url: state.vedUrl, duration: state.vedDur, prompt }, 'video');
+};
+function setupSpecial(){
+  if (ME.models[state.vedModel]) { bindPick('vedModels', 'vedit', 'vedModel', updVed); updVed(); }
+  if (!ME.models[state.motModel]) state.motModel = byType('motion')[0];
+  if (!ME.models[state.avaModel]) state.avaModel = byType('avatar')[0];
+  if (state.motModel) {
+    bindPick('motModels', 'motion', 'motModel', updMot);
+    chips('motOrient', [{ value: 'video', label: 'Как на видео', small: 'до 30 сек' }, { value: 'image', label: 'Как на фото', small: 'до 10 сек' }], state.motOrient, v => { state.motOrient = v; updMot(); });
+    chips('motRes', ['720p','1080p'].map(r => ({ value: r, label: r })), state.motRes, v => { state.motRes = v; updMot(); });
+    updMot();
+  }
+  if (state.avaModel) {
+    bindPick('avaModels', 'avatar', 'avaModel', updAva);
+    chips('avaMode', [{ value: 'text', label: '✍️ Текст → голос' }, { value: 'audio', label: '🎤 Своё аудио' }], state.avaMode, v => { state.avaMode = v; updAva(); });
+    state.avaVoice = ME.voices[0];
+    chips('avaVoices', ME.voices.map(v => ({ value: v, label: v })), state.avaVoice, v => state.avaVoice = v);
+    updAva();
+  }
+}
+
+/* ---------- Тренды ---------- */
+const TRENDS = [
+  { id: 'anime', e: '🎌', t: 'Я в стиле аниме', v: 'edit', m: 'nb2edit', p: 'Преврати человека на фото в персонажа аниме: яркие цвета, выразительные глаза, стиль японской анимации. Сохрани черты лица, причёску и одежду.' },
+  { id: 'figure', e: '🧸', t: 'Я — коллекционная фигурка', v: 'edit', m: 'nbproedit', p: 'Сделай из человека на фото коллекционную 3D-фигурку в прозрачной коробке с аксессуарами и названием, студийный свет, реалистичный пластик.' },
+  { id: 'animate', e: '🎬', t: 'Оживить фото', v: 'video', m: 'veolite', p: 'Человек на фото естественно двигается, улыбается и смотрит в камеру, лёгкий ветер, кинематографично.' },
+  { id: 'resume', e: '💼', t: 'Фото для резюме', v: 'edit', m: 'nb2edit', p: 'Сделай профессиональный деловой портрет: строгий костюм, нейтральный серый фон, мягкий студийный свет. Сохрани лицо без изменений.' },
+  { id: 'magazine', e: '📰', t: 'Я на обложке журнала', v: 'edit', m: 'nbproedit', p: 'Помести человека на обложку модного глянцевого журнала: стильная фотосессия, крупные заголовки, профессиональный свет.' },
+  { id: 'restore', e: '🖼', t: 'Старое фото как новое', v: 'edit', m: 'nbproedit', p: 'Восстанови старое фото: убери царапины и шум, повысь резкость и аккуратно раскрась в естественные цвета.' },
+  { id: 'pet', e: '🐶', t: 'Питомец-мультяшка', v: 'edit', m: 'nb2edit', p: 'Преврати питомца на фото в милого персонажа 3D-мультфильма: большие глаза, мягкий свет, яркий фон.' },
+  { id: 'cyber', e: '🌆', t: 'Киберпанк-портрет', v: 'edit', m: 'nb2edit', p: 'Сделай киберпанк-портрет: неоновый ночной город, розовые и голубые огни, футуристичная одежда. Сохрани лицо.' },
+];
+function renderTrends(){
+  const box = $('trends'); box.innerHTML = '';
+  TRENDS.filter(t => ME.models[t.m]).forEach(t => {
+    const b = el('button','trend'); b.type = 'button';
+    const ti = ME.trendImgs && ME.trendImgs[t.id];
+    if (ti) { b.classList.add('img'); b.style.backgroundImage = `linear-gradient(180deg,rgba(0,0,0,.05),rgba(0,0,0,.75)),url("${ti}")`; }
+    b.append(el('div','e', ti ? '' : t.e), el('b', null, t.t), el('span', null, `📷 нужно фото · ${(ME.models[t.m].vid ? 'от ' : '') + costLabel(ME.models[t.m].cost)}`));
+    b.onclick = () => {
+      if (t.v === 'edit') { state.editModel = t.m; renderPick('editModels', t.m); updEditBtn(); $('editPrompt').value = t.p; }
+      else { state.vidModel = t.m; renderPick('vidModels', t.m); setupVidOpts(); $('vidPrompt').value = t.p; }
+      go(t.v); toast('Загрузите своё фото и нажмите кнопку внизу', true);
+    };
+    box.appendChild(b);
+  });
+}
+
+/* ---------- Языки: автоперевод интерфейса ---------- */
+const I18N = { lang: 'ru', dict: {}, pending: new Set(), asked: new Set(), timer: null, obs: null };
+const RTL_LANGS = ['ar','fa','ur'];
+const CYR_RE = /[А-Яа-яЁё]/;
+function normTr(t){ const nums = []; const k = t.replace(/\d+(?:[.,]\d+)?/g, m => { nums.push(m); return '{' + (nums.length - 1) + '}'; }); return [k, nums]; }
+function denormTr(t, nums){ return t.replace(/\{(\d+)\}/g, (m, i) => nums[i] !== undefined ? nums[i] : m); }
+const TR_DONE = new WeakMap();
+function trString(src){
+  const core = src.trim(); if (!core || !CYR_RE.test(core)) return null;
+  const [k, nums] = normTr(core); const v = I18N.dict[k];
+  if (v === undefined) { if (!I18N.asked.has(k)) { I18N.pending.add(k); trSchedule(); } return null; }
+  return src.replace(core, denormTr(v, nums));
+}
+function trSkip(n){ const p = n.nodeType === 3 ? n.parentElement : n; return !p || !!p.closest('[data-notr],script,style,textarea,select'); }
+function trNode(n){
+  const cur = n.nodeValue; if (TR_DONE.get(n) === cur) return;
+  const out = trString(cur); if (out !== null && out !== cur) { TR_DONE.set(n, out); n.nodeValue = out; }
+}
+function trAttr(e, a){
+  const cur = e.getAttribute(a); if (!cur || e['_tr_' + a] === cur) return;
+  const out = trString(cur); if (out !== null && out !== cur) { e['_tr_' + a] = out; e.setAttribute(a, out); }
+}
+function trTree(root){
+  if (I18N.lang === 'ru' || !root) return;
+  if (root.nodeType === 3) { if (!trSkip(root)) trNode(root); return; }
+  if (root.nodeType !== 1 || trSkip(root)) return;
+  const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT); let n;
+  while ((n = w.nextNode())) if (!trSkip(n)) trNode(n);
+  [root, ...root.querySelectorAll('[placeholder],[aria-label],[title]')].forEach(e => { if (e.nodeType !== 1 || trSkip(e)) return; ['placeholder','aria-label','title'].forEach(a => e.hasAttribute && e.hasAttribute(a) && trAttr(e, a)); });
+}
+function trSchedule(){ clearTimeout(I18N.timer); I18N.timer = setTimeout(trFetch, 200); }
+async function trFetch(){
+  const keys = [...I18N.pending].slice(0, 80); keys.forEach(k => { I18N.pending.delete(k); I18N.asked.add(k); });
+  if (!keys.length) return;
+  try { const r = await api('/api/tr', { lang: I18N.lang, keys }); Object.assign(I18N.dict, r.dict || {}); trSave(); trTree(document.body); } catch(e) {}
+  if (I18N.pending.size) trSchedule();
+}
+function trSave(){ try { localStorage.setItem('zunivo_tr_' + I18N.lang, JSON.stringify(I18N.dict)); } catch(e) {} }
+async function setupI18n(){
+  const sel = $('langSel'); sel.innerHTML = '';
+  Object.entries(ME.langs || { ru: 'Русский' }).forEach(([c, n]) => { const o = document.createElement('option'); o.value = c; o.textContent = n; sel.appendChild(o); });
+  sel.value = ME.lang || 'ru';
+  sel.onchange = async () => { try { await api('/api/lang', { lang: sel.value }); } catch(e) {} location.reload(); };
+  I18N.lang = ME.lang || 'ru';
+  document.documentElement.lang = I18N.lang;
+  document.documentElement.dir = RTL_LANGS.includes(I18N.lang) ? 'rtl' : 'ltr';
+  if (I18N.lang === 'ru') return;
+  try { I18N.dict = JSON.parse(localStorage.getItem('zunivo_tr_' + I18N.lang) || '{}'); } catch(e) {}
+  trTree(document.body);
+  try { const r = await api('/api/tr', { lang: I18N.lang, keys: [], all: 1 }); Object.assign(I18N.dict, r.dict || {}); trSave(); } catch(e) {}
+  trTree(document.body);
+  I18N.obs = new MutationObserver(ms => ms.forEach(m => {
+    if (m.type === 'characterData') { if (!trSkip(m.target)) trNode(m.target); }
+    else if (m.type === 'attributes') { if (!trSkip(m.target)) trAttr(m.target, m.attributeName); }
+    else m.addedNodes.forEach(n => trTree(n));
+  }));
+  I18N.obs.observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['placeholder','aria-label','title'] });
+}
+
+/* ---------- Галерея ---------- */
+async function loadGallery(){
+  try {
+    const { items } = await api('/api/gallery');
+    const box = $('gallery'); box.innerHTML = '';
+    $('galBox').hidden = !items.length;
+    items.forEach(it => {
+      const c = el('button','gal'); c.type = 'button';
+      if (it.t === 'video') { const v = el('video'); v.src = it.u; v.muted = true; v.loop = true; v.autoplay = true; v.playsInline = true; v.setAttribute('playsinline',''); c.appendChild(v); }
+      else { const i = el('img'); i.loading = 'lazy'; i.src = it.u; i.alt = it.p || 'Работа'; c.appendChild(i); }
+      const gt = el('div', null, (ME.admin ? `[${it.id}] ` : '') + '🔁 ' + (it.p || it.m)); gt.dataset.notr = '1'; c.appendChild(gt);
+      c.onclick = () => {
+        const want = it.t === 'video' ? 'video' : 'image';
+        const key = Object.keys(ME.models).find(k => ME.models[k].name === it.m && ME.models[k].type === want);
+        if (want === 'video') { if (key) { state.vidModel = key; renderPick('vidModels', key); setupVidOpts(); } $('vidPrompt').value = it.p || ''; }
+        else { if (key) { state.imgModel = key; renderPick('imgModels', key); updImgBtn(); } $('imgPrompt').value = it.p || ''; }
+        go(want); toast('Запрос подставлен — можно изменить и создать свою версию', true);
+      };
+      box.appendChild(c);
+    });
+  } catch(e) {}
+}
+
+/* ---------- На главный экран ---------- */
+function setupHomeScreen(){
+  if (!tg || !tg.addToHomeScreen || !tg.checkHomeScreenStatus) return;
+  try { tg.checkHomeScreenStatus(st => { $('homeBtn').hidden = !(st === 'missed' || st === 'unknown'); }); } catch(e) {}
+  $('homeBtn').onclick = () => { try { tg.addToHomeScreen(); } catch(e) {} };
+  try { tg.onEvent('homeScreenAdded', () => { $('homeBtn').hidden = true; toast('Zunivo добавлен на главный экран 🎉', true); }); } catch(e) {}
+}
+
+/* ---------- Ежедневный бонус ---------- */
+function renderDaily(){
+  const d = ME.daily || {}, b = $('dailyBtn');
+  b.disabled = !!d.claimed;
+  $('dailyT').textContent = d.claimed ? `Бонус получен ✓ · серия ${d.streak} дн.` : `Забрать ежедневный бонус +${d.next} ◆`;
+  $('dailyS').textContent = d.claimed ? `Завтра будет +${Math.min(5, (d.next || 2) + 1)} ◆ — не пропусти!` : (d.streak ? `Серия ${d.streak} дн. — бонус растёт каждый день` : 'Заходи каждый день — бонус растёт до 5 ◆');
+}
+$('dailyBtn').onclick = async () => {
+  try { const r = await api('/api/daily', {}); setBal(r.credits); ME.daily = { claimed: true, streak: r.streak, next: r.bonus }; renderDaily(); toast(`+${r.bonus} ◆ — серия ${r.streak} дн. 🔥`, true); }
+  catch(e) { toast(e.message); }
+};
+
+/* ---------- Улучшить запрос ---------- */
+document.querySelectorAll('[data-enh]').forEach(b => b.onclick = async () => {
+  const ta = $(b.dataset.enh), old = ta.value.trim();
+  if (!old) return toast('Сначала напишите хотя бы пару слов');
+  b.disabled = true; b.textContent = '✨ Улучшаю…';
+  try { const r = await api('/api/enhance', { prompt: old, type: b.dataset.type }); ta.value = r.prompt; toast('Запрос улучшен ✨', true); }
+  catch(e) { toast(e.message); }
+  finally { b.disabled = false; b.textContent = '✨ Улучшить запрос'; }
+});
+
+/* ---------- Профиль: рефералы, промокод, админ ---------- */
+const usd = x => '$' + Number(x || 0).toFixed(2);
+function renderProfile(){
+  const r = ME.ref || {};
+  $('refInfo').textContent = `Приглашайте друзей и получайте ${r.percent || 10}% от всех их покупок. Друг получит +${r.bonus || 5} ◆ в подарок. Вывод от ${usd(r.min || 5)} в USDT через @CryptoBot.`;
+  $('refCount').textContent = r.count || 0; $('refEarned').textContent = usd(r.earned); $('refBal').textContent = usd(r.balance);
+  $('refLink').value = r.link || 'Ссылка появится после обновления сервера';
+  $('refWithdraw').disabled = !r.canWithdraw || (r.balance || 0) < (r.min || 5);
+  $('refConvert').hidden = !(r.balance > 0);
+  $('uid2').textContent = `Ваш Telegram ID: ${ME.id}`;
+  $('adminCard').hidden = !ME.admin;
+  if (ME.admin) loadAdmin();
+}
+$('refCopy').onclick = async () => { try { await navigator.clipboard.writeText($('refLink').value); toast('Ссылка скопирована', true); } catch(e) { $('refLink').select(); } };
+$('refShare').onclick = () => {
+  const link = (ME.ref || {}).link; if (!link) return;
+  const url = 'https://t.me/share/url?url=' + encodeURIComponent(link) + '&text=' + encodeURIComponent('Попробуй Zunivo — 100+ нейросетей в Telegram: картинки, видео, музыка. По моей ссылке — бонусные кредиты 🎁');
+  tg && tg.openTelegramLink ? tg.openTelegramLink(url) : window.open(url, '_blank');
+};
+$('refWithdraw').onclick = async () => {
+  const r = ME.ref || {};
+  const ok = await new Promise(res => tg && tg.showConfirm ? tg.showConfirm(`Вывести ${usd(r.balance)} в USDT через @CryptoBot? Заявку проверят, обычно в течение суток. Убедитесь, что вы хотя бы раз запускали @CryptoBot.`, res) : res(confirm('Вывести?')));
+  if (!ok) return;
+  try { const x = await api('/api/withdraw', { amount: r.balance }); ME.ref.balance = x.balance; renderProfile(); toast('Заявка на вывод отправлена ✅', true); }
+  catch(e) { toast(e.message); }
+};
+$('refConvert').onclick = async () => {
+  try { const x = await api('/api/refconvert', {}); setBal(x.credits); ME.ref.balance = x.balance; renderProfile(); toast(`+${x.added} ◆ на баланс`, true); }
+  catch(e) { toast(e.message); }
+};
+$('promoGo').onclick = async () => {
+  const code = $('promoIn').value.trim(); if (!code) return toast('Введите промокод');
+  try { const x = await api('/api/promo', { code }); setBal(x.credits); $('promoIn').value = ''; toast(`Промокод активирован: +${x.bonus} ◆ 🎉`, true); }
+  catch(e) { toast(e.message); }
+};
+async function loadAdmin(){
+  try {
+    const a = await api('/api/admin');
+    const tot = a.days.reduce((s, d) => ({ users: s.users + (d.users || 0), gens: s.gens + (d.gens || 0), buys: s.buys + (d.buys || 0), usd: s.usd + (d.usd || 0), cost: s.cost + (d.cost || 0) }), { users: 0, gens: 0, buys: 0, usd: 0, cost: 0 });
+    $('adminSum').textContent = `Всего пользователей: ${a.users}. За 14 дней: новых ${tot.users}, генераций ${tot.gens}, покупок ${tot.buys}. Доход ≈ ${usd(tot.usd)}, расход ≈ ${usd(tot.cost)}, прибыль ≈ ${usd(tot.usd - tot.cost)}.` + (a.kie != null ? ` Баланс Kie.ai: ~${usd(a.kie * 0.005)}.` : '');
+    const t = $('adminTbl'); t.innerHTML = '';
+    const h = el('tr'); ['Дата','Новые','Генер.','Покупки','Доход','Расход','Прибыль'].forEach(x => h.appendChild(el('th', null, x))); t.appendChild(h);
+    a.days.forEach(d => { const r = el('tr'); [d.d.slice(5), d.users || 0, d.gens || 0, d.buys || 0, usd(d.usd), usd(d.cost), usd((d.usd || 0) - (d.cost || 0))].forEach(x => r.appendChild(el('td', null, String(x)))); t.appendChild(r); });
+    $('adminPromos').textContent = a.promos.length ? 'Промокоды: ' + a.promos.map(p => `${p.code} (${p.used}/${p.max})`).join(', ') : 'Промокодов пока нет. Создать: /promo КОД КРЕДИТЫ КОЛИЧЕСТВО';
+  } catch(e) { $('adminSum').textContent = e.message; }
+}
+
+/* ---------- Старт ---------- */
+async function refresh(){ const me = await api('/api/me'); ME = me; setBal(me.credits); }
+(async () => {
+  if (!tg || !tg.initData) {
+    document.querySelectorAll('.view,.top,.nav').forEach(x => x.hidden = true); $('blocked').hidden = false; return;
+  }
+  try { await refresh(); setupForms(); go('home'); setupI18n(); }
+  catch(e) { toast(e.message); }
+})();
+</script>
+</body>
+</html>
